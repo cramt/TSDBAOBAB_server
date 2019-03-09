@@ -16,7 +16,7 @@ namespace TSDBAOBAB_server {
 
             var server = new Server {
                 Services = { service },
-                Ports = { new ServerPort("localhost", 12345, ServerCredentials.Insecure) }
+                Ports = { new ServerPort("0.0.0.0", 12345, ServerCredentials.Insecure) }
             };
 
             // launch gRPC Server.
@@ -30,21 +30,37 @@ namespace TSDBAOBAB_server {
             Console.ReadLine();
         }
     }
+
     [MessagePackObject]
     public class Player {
+        public enum Char {
+            BG72,
+            SG27,
+        }
         [Key(0)]
-        public string Name { get; set; }
-        [Key(1)]
         public Vector3 Position { get; set; }
-        [Key(2)]
+        [Key(1)]
         public Quaternion Rotation { get; set; }
+        [Key(2)]
+        public Char Character { get; set; }
+        [Key(3)]
+        public int Id { get; set; }
     }
-    public class MainHub : StreamingHubBase<IMainHub, IMainHubReceiver>, IMainHub{
-        IGroup room;
-        IInMemoryStorage<Player> storage;
+    public class MainHub : StreamingHubBase<IMainHub, IMainHubReceiver>, IMainHub {
+        IGroup room = null;
+        Player self;
+        IInMemoryStorage<Player> storage = null;
         public async Task MatchMake(string pass) {
-            (room, storage) = await Group.AddAsync(pass, new Player());
-            
+            self = new Player {
+                Id = storage == null ? 0 : storage.AllValues.Count,
+                Position = new Vector3(0, 0, 0),
+                Rotation = new Quaternion(0, 0, 0, 0),
+                Character = Player.Char.BG72,
+            };
+            Console.WriteLine("hello there");
+            (room, storage) = await Group.AddAsync(pass, self);
+            Broadcast(room).Log("there are: " + storage.AllValues.Count + " players");
+
         }
     }
 }
