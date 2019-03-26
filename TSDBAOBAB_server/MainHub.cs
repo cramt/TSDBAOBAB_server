@@ -1,5 +1,6 @@
 ﻿using MagicOnion.Server.Hubs;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -17,15 +18,25 @@ namespace TSDBAOBAB_server {
                 Character = storage == null ? Char.BG72 : Char.SG27,
                 Velocity = new float[] { 0, 0, 0 }
             };
-            if (storage != null)
+            if (storage != null) {
                 if (storage.AllValues.Count > 1) {
                     return null;
                 }
+            }
             (room, storage) = await Group.AddAsync(pass, self);
             if (storage.AllValues.Count == 2) {
                 Broadcast(room).MatchMade(storage.AllValues.ToArray());
             }
             return self;
+        }
+
+        readonly Dictionary<Char, PlayerNetworkObject> State = new Dictionary<Char, PlayerNetworkObject> {
+                { Char.BG72, null },
+                { Char.SG27, null }
+            };
+        public void PlayerStateUpdate(PlayerNetworkObject player) {
+            State[player.Character] = player;
+            Broadcast(room).OnPlayerStateUpdate(player);
         }
     }
 }
