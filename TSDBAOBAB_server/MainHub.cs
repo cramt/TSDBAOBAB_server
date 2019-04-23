@@ -15,7 +15,7 @@ namespace TSDBAOBAB_server {
                 Id = storage == null ? 0 : storage.AllValues.Count,
                 Position = new float[] { 0, 0, 0 },
                 Rotation = new float[] { 0, 0, 0, 0 },
-                Character = storage == null ? Char.BG72 : Char.SG27,
+                Character = storage == null ? Character.BG72 : Character.SG27,
                 Velocity = new float[] { 0, 0, 0 }
             };
             if (storage != null) {
@@ -30,13 +30,21 @@ namespace TSDBAOBAB_server {
             return self;
         }
 
-        readonly Dictionary<Char, PlayerNetworkObject> State = new Dictionary<Char, PlayerNetworkObject> {
-                { Char.BG72, null },
-                { Char.SG27, null }
+        readonly Dictionary<Character, PlayerNetworkObject> State = new Dictionary<Character, PlayerNetworkObject> {
+                { Character.BG72, null },
+                { Character.SG27, null }
             };
         public void PlayerStateUpdate(PlayerNetworkObject player) {
             State[player.Character] = player;
             Broadcast(room).OnPlayerStateUpdate(player);
+        }
+
+        public void SlaveStateUpdate(int keycode) {
+            throw new NotImplementedException();
+        }
+
+        public void MasterStateUpdate(GameObject[] objects) {
+            throw new NotImplementedException();
         }
     }
 }
